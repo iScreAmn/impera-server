@@ -9,6 +9,7 @@ import questionRoutes from './src/question/routes/question.js';
 import { verifyEmailConfig as verifyContactEmail } from './src/contact/services/emailService.js';
 import { verifyEmailConfig as verifyCalculatorEmail } from './src/calculator/services/emailService.js';
 import { verifyEmailConfig as verifyQuestionEmail } from './src/question/services/emailService.js';
+import { getTelegramHealthDetails, sendTelegramMessage, verifyTelegramConfig } from './src/telegram/services/telegramClient.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -23,6 +24,11 @@ if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
 if (!process.env.ADMIN_EMAIL) {
   console.error('WARNING: ADMIN_EMAIL not found in .env file!');
   console.error('Emails will not be sent until ADMIN_EMAIL is configured');
+}
+
+if (process.env.TELEGRAM_BOT_TOKEN && !process.env.TELEGRAM_CHAT_ID) {
+  console.error('WARNING: TELEGRAM_CHAT_ID not found in .env file!');
+  console.error('Telegram messages will not be sent until TELEGRAM_CHAT_ID is configured');
 }
 
 const app = express();
@@ -132,6 +138,36 @@ app.get('/api/health/email', async (req, res) => {
     question: questionOk,
     timestamp: new Date().toISOString()
   });
+});
+
+app.get('/api/health/telegram', async (req, res) => {
+  const ok = await verifyTelegramConfig();
+  res.json({
+    success: ok,
+    details: getTelegramHealthDetails(),
+    timestamp: new Date().toISOString()
+  });
+});
+
+app.get('/api/health/telegram/send-test', async (req, res) => {
+  try {
+    const text = typeof req.query.text === 'string' ? req.query.text : '';
+    const safeText = (text || 'ping').slice(0, 300);
+    const result = await sendTelegramMessage(`<b>Impera Server:</b> ${safeText}`);
+    res.json({
+      success: true,
+      result,
+      details: getTelegramHealthDetails(),
+      timestamp: new Date().toISOString()
+    });
+  } catch (e) {
+    res.status(500).json({
+      success: false,
+      message: e?.message || String(e),
+      details: getTelegramHealthDetails(),
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 app.use('/api', rateLimit);
