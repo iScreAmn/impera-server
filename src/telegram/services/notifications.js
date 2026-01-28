@@ -44,9 +44,7 @@ export const sendCalculatorTelegramNotification = async (data) => {
     `<b>Ответы:</b>`,
     answersLines.length ? answersLines.join('\n') : 'Ответы отсутствуют',
     ``,
-    `<b>Отправлено:</b> ${escapeHtml(data.submitted_at)}`,
-    data.ip ? `<b>IP:</b> ${escapeHtml(data.ip)}` : '',
-    data.userAgent ? `<b>User Agent:</b> ${escapeHtml(data.userAgent)}` : ''
+    `<b>Отправлено:</b> ${escapeHtml(data.submitted_at)}`
   ]);
 
   return sendTelegramMessage(html);
@@ -61,9 +59,7 @@ export const sendContactTelegramNotification = async (data) => {
     `<b>Email:</b> ${escapeHtml(data.email)}`,
     `<b>Сообщение:</b> ${escapeHtml(data.message || '—')}`,
     ``,
-    `<b>Отправлено:</b> ${escapeHtml(data.submitted_at)}`,
-    data.ip ? `<b>IP:</b> ${escapeHtml(data.ip)}` : '',
-    data.userAgent ? `<b>User Agent:</b> ${escapeHtml(data.userAgent)}` : ''
+    `<b>Отправлено:</b> ${escapeHtml(data.submitted_at)}`
   ]);
 
   return sendTelegramMessage(html);
@@ -71,15 +67,13 @@ export const sendContactTelegramNotification = async (data) => {
 
 export const sendQuestionTelegramNotification = async (data) => {
   const html = linesToHtml([
-    `<b>Новый вопрос с сайта Impera Design</b>`,
+    `<b>Новый вопрос с сайта ИМПЕРА</b>`,
     ``,
     `<b>Имя:</b> ${escapeHtml(data.name)}`,
     `<b>Способ связи:</b> ${escapeHtml(data.contactMethod)}`,
     `<b>Вопрос:</b> ${escapeHtml(data.question)}`,
     ``,
-    `<b>Отправлено:</b> ${escapeHtml(data.submitted_at)}`,
-    data.ip ? `<b>IP:</b> ${escapeHtml(data.ip)}` : '',
-    data.userAgent ? `<b>User Agent:</b> ${escapeHtml(data.userAgent)}` : ''
+    `<b>Отправлено:</b> ${escapeHtml(data.submitted_at)}`
   ]);
 
   return sendTelegramMessage(html);
