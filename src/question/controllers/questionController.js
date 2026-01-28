@@ -1,4 +1,5 @@
 import { sendQuestionAdminEmail } from '../services/emailService.js';
+import { sendQuestionTelegramNotification } from '../../telegram/services/notifications.js';
 
 const contactMethodLabels = {
   telegram: 'Telegram',
@@ -43,7 +44,23 @@ export const submitQuestion = async (req, res) => {
       userAgent: req.get('user-agent') || 'Unknown'
     };
 
-    await sendQuestionAdminEmail(emailData);
+    const telegramPromise = sendQuestionTelegramNotification(emailData)
+      .then((result) => {
+        console.log('Question telegram notification result:', result);
+        return result;
+      })
+      .catch((err) => {
+        console.error(
+          'Question telegram notification failed:',
+          err?.message || err,
+          err?.details || ''
+        );
+      });
+
+    await Promise.all([
+      sendQuestionAdminEmail(emailData),
+      telegramPromise
+    ]);
 
     console.log('Question submission successful:', {
       name: emailData.name,

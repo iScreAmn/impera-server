@@ -1,4 +1,5 @@
 import { sendContactAdminEmail, sendContactUserEmail } from '../services/emailService.js';
+import { sendContactTelegramNotification } from '../../telegram/services/notifications.js';
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const phoneRegex = /^\+?[0-9]{7,15}$/;
@@ -64,7 +65,23 @@ export const submitContact = async (req, res) => {
       userAgent: req.get('user-agent') || 'Unknown'
     };
 
-    await sendContactAdminEmail(emailData);
+    const telegramPromise = sendContactTelegramNotification(emailData)
+      .then((result) => {
+        console.log('Contact telegram notification result:', result);
+        return result;
+      })
+      .catch((err) => {
+        console.error(
+          'Contact telegram notification failed:',
+          err?.message || err,
+          err?.details || ''
+        );
+      });
+
+    await Promise.all([
+      sendContactAdminEmail(emailData),
+      telegramPromise
+    ]);
 
     console.log('Contact submission successful:', {
       name: emailData.name,

@@ -1,4 +1,5 @@
 import { sendCalculatorAdminEmail, sendCalculatorUserEmail } from '../services/emailService.js';
+import { sendCalculatorTelegramNotification } from '../../telegram/services/notifications.js';
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const phoneRegex = /^\+?[0-9]{7,15}$/;
@@ -88,7 +89,24 @@ export const submitCalculator = async (req, res) => {
       userAgent: req.get('user-agent') || 'Unknown'
     };
 
-    await sendCalculatorAdminEmail(emailData);
+    const [emailResult, telegramResult] = await Promise.allSettled([
+      sendCalculatorAdminEmail(emailData),
+      sendCalculatorTelegramNotification(emailData)
+    ]);
+
+    if (telegramResult.status === 'fulfilled') {
+      console.log('Calculator telegram notification result:', telegramResult.value);
+    } else {
+      console.error(
+        'Calculator telegram notification failed:',
+        telegramResult.reason?.message || telegramResult.reason,
+        telegramResult.reason?.details || ''
+      );
+    }
+
+    if (emailResult.status === 'rejected') {
+      throw emailResult.reason;
+    }
 
     console.log('Calculator submission successful:', {
       name: emailData.name,
@@ -102,7 +120,10 @@ export const submitCalculator = async (req, res) => {
       success: true,
       message: 'Заявка успешно отправлена!',
       data: {
-        timestamp: emailData.submitted_at
+        timestamp: emailData.submitted_at,
+        telegram: telegramResult.status === 'fulfilled'
+          ? telegramResult.value
+          : { error: telegramResult.reason?.message || String(telegramResult.reason) }
       }
     });
   } catch (error) {
