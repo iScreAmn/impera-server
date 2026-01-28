@@ -40,7 +40,11 @@ const defaultOrigins = [
   'http://localhost:3000',
   'http://127.0.0.1:5173',
   'http://127.0.0.1:4173',
-  'http://127.0.0.1:3000'
+  'http://127.0.0.1:3000',
+  'https://www.impera-design.ru',
+  'https://impera-design.ru',
+  'http://www.impera-design.ru',
+  'http://impera-design.ru'
 ];
 
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
