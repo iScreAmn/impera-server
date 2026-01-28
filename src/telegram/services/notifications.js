@@ -37,7 +37,6 @@ export const sendCalculatorTelegramNotification = async (data) => {
     ``,
     `<b>Имя:</b> ${escapeHtml(data.name)}`,
     `<b>Телефон:</b> ${escapeHtml(data.phone)}`,
-    `<b>Email:</b> ${escapeHtml(data.email)}`,
     `<b>Способ связи:</b> ${escapeHtml(formatContactMethod(data.contactMethod))}`,
     `<b>Согласие:</b> ${data.consent ? 'Да' : 'Нет'}`,
     ``,

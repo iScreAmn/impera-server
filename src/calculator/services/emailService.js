@@ -83,10 +83,6 @@ const generateEmailHTML = (data) => `
           <span>${data.phone}</span>
         </div>
         <div class="field">
-          <span class="label">Email:</span>
-          <span>${data.email}</span>
-        </div>
-        <div class="field">
           <span class="label">Способ связи:</span>
           <span>${formatContactMethod(data.contactMethod)}</span>
         </div>
@@ -114,7 +110,6 @@ const generatePlainText = (data) => `
 ${'='.repeat(48)}
 Имя: ${data.name}
 Телефон: ${data.phone}
-Email: ${data.email}
 Способ связи: ${formatContactMethod(data.contactMethod)}
 Согласие: ${data.consent ? 'Да' : 'Нет'}
 
@@ -180,8 +175,7 @@ export const sendCalculatorAdminEmail = async (data) => {
     to: getAdminEmail(),
     subject: 'Новая заявка из калькулятора',
     html: generateEmailHTML(data),
-    text: generatePlainText(data),
-    replyTo: data.email ? `"${data.name}" <${data.email}>` : undefined
+    text: generatePlainText(data)
   };
 
   try {

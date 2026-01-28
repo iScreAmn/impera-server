@@ -1,7 +1,6 @@
 import { sendCalculatorAdminEmail, sendCalculatorUserEmail } from '../services/emailService.js';
 import { sendCalculatorTelegramNotification } from '../../telegram/services/notifications.js';
 
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const phoneRegex = /^\+?[0-9]{7,15}$/;
 
 const normalizePhone = (phone) => {
@@ -16,10 +15,11 @@ const normalizePhone = (phone) => {
 export const submitCalculator = async (req, res) => {
   try {
     const { answers, contact, _company } = req.body;
+    console.log('Received calculator submission:', { answers, contact, _company });
+    
     const {
       name,
       phone,
-      email,
       contactMethod,
       consent
     } = contact || {};
@@ -39,11 +39,13 @@ export const submitCalculator = async (req, res) => {
       });
     }
 
-    if (!name || !phone || !email || !contactMethod) {
+    if (!name || !phone || !contactMethod) {
+      console.log('Missing fields check:', { name: !!name, phone: !!phone, contactMethod: !!contactMethod });
+      console.log('Actual values:', { name, phone, contactMethod });
       return res.status(400).json({
         success: false,
         message: 'Missing required fields',
-        required: ['name', 'phone', 'email', 'contactMethod']
+        required: ['name', 'phone', 'contactMethod']
       });
     }
 
@@ -51,13 +53,6 @@ export const submitCalculator = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'Consent is required'
-      });
-    }
-
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid email format'
       });
     }
 
@@ -73,7 +68,6 @@ export const submitCalculator = async (req, res) => {
       answers,
       name: name.trim(),
       phone: normalizedPhone,
-      email: email.trim(),
       contactMethod,
       consent: Boolean(consent),
       submitted_at: new Date().toLocaleString('ru-RU', {
@@ -111,7 +105,6 @@ export const submitCalculator = async (req, res) => {
     console.log('Calculator submission successful:', {
       name: emailData.name,
       phone: emailData.phone,
-      email: emailData.email,
       contactMethod: emailData.contactMethod,
       timestamp: emailData.submitted_at
     });
