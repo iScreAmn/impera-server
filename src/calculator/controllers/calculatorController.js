@@ -106,8 +106,46 @@ export const submitCalculator = async (req, res) => {
     }
 
     if (emailResult.status === 'rejected') {
-      throw emailResult.reason;
+      console.error('Calculator admin email rejected:', emailResult.reason?.message || emailResult.reason);
+      // Не возвращаем 500 — заявка могла дойти по Telegram; клиенту показываем успех
     }
+
+    // После отправки (email и/или telegram) всегда отвечаем 200, иначе клиент покажет ошибку при успешной заявке
+    const sendSuccess = () => {
+      try {
+        const telegramPayload =
+          telegramResult.status === 'fulfilled'
+            ? {
+                ok: true,
+                okCount:
+                  typeof telegramResult.value?.okCount === 'number'
+                    ? telegramResult.value.okCount
+                    : null,
+                skipped: Boolean(telegramResult.value?.skipped)
+              }
+            : {
+                ok: false,
+                error:
+                  telegramResult.reason?.message ||
+                  String(telegramResult.reason ?? 'Unknown error')
+              };
+
+        return res.status(200).json({
+          success: true,
+          message: 'Заявка успешно отправлена!',
+          data: {
+            timestamp: emailData.submitted_at,
+            telegram: telegramPayload
+          }
+        });
+      } catch (responseError) {
+        console.error('Calculator response build/send error:', responseError);
+        return res.status(200).json({
+          success: true,
+          message: 'Заявка успешно отправлена!'
+        });
+      }
+    };
 
     console.log('Calculator submission successful:', {
       name: emailData.name,
@@ -116,33 +154,7 @@ export const submitCalculator = async (req, res) => {
       timestamp: emailData.submitted_at
     });
 
-    const telegramPayload =
-      telegramResult.status === 'fulfilled'
-        ? {
-            ok: true,
-            okCount:
-              typeof telegramResult.value?.okCount === 'number'
-                ? telegramResult.value.okCount
-                : null,
-            skipped: Boolean(telegramResult.value?.skipped)
-          }
-        : {
-            ok: false,
-            error:
-              telegramResult.reason?.message ||
-              String(telegramResult.reason ?? 'Unknown error')
-          };
-
-    const payload = {
-      success: true,
-      message: 'Заявка успешно отправлена!',
-      data: {
-        timestamp: emailData.submitted_at,
-        telegram: telegramPayload
-      }
-    };
-
-    return res.status(200).json(payload);
+    return sendSuccess();
   } catch (error) {
     console.error('Calculator submission error:', error);
     return res.status(500).json({
