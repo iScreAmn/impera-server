@@ -79,3 +79,17 @@ export const sendQuestionTelegramNotification = async (data) => {
   return sendTelegramMessage(html);
 };
 
+export const sendCtaTelegramNotification = async (data) => {
+  const html = linesToHtml([
+    `<b>Заявка из блока CTA — Impera Design</b>`,
+    ``,
+    `<b>Имя:</b> ${escapeHtml(data.name)}`,
+    `<b>Телефон:</b> ${escapeHtml(data.phone)}`,
+    `<b>Согласие:</b> ${data.agree ? 'Да' : 'Нет'}`,
+    ``,
+    `<b>Отправлено:</b> ${escapeHtml(data.submitted_at)}`
+  ]);
+
+  return sendTelegramMessage(html);
+};
+

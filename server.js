@@ -6,9 +6,11 @@ import { dirname, join } from 'path';
 import contactRoutes from './src/contact/routes/contact.js';
 import calculatorRoutes from './src/calculator/routes/calculator.js';
 import questionRoutes from './src/question/routes/question.js';
+import ctaRoutes from './src/cta/routes/cta.js';
 import { verifyEmailConfig as verifyContactEmail } from './src/contact/services/emailService.js';
 import { verifyEmailConfig as verifyCalculatorEmail } from './src/calculator/services/emailService.js';
 import { verifyEmailConfig as verifyQuestionEmail } from './src/question/services/emailService.js';
+import { verifyEmailConfig as verifyCtaEmail } from './src/cta/services/emailService.js';
 import { getTelegramHealthDetails, sendTelegramMessage, verifyTelegramConfig } from './src/telegram/services/telegramClient.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -129,17 +131,19 @@ app.get('/health', (req, res) => {
 });
 
 app.get('/api/health/email', async (req, res) => {
-  const [contactOk, calculatorOk, questionOk] = await Promise.all([
+  const [contactOk, calculatorOk, questionOk, ctaOk] = await Promise.all([
     verifyContactEmail(),
     verifyCalculatorEmail(),
-    verifyQuestionEmail()
+    verifyQuestionEmail(),
+    verifyCtaEmail()
   ]);
 
   res.json({
-    success: contactOk && calculatorOk && questionOk,
+    success: contactOk && calculatorOk && questionOk && ctaOk,
     contact: contactOk,
     calculator: calculatorOk,
     question: questionOk,
+    cta: ctaOk,
     timestamp: new Date().toISOString()
   });
 });
@@ -178,6 +182,7 @@ app.use('/api', rateLimit);
 app.use('/api/contact', contactRoutes);
 app.use('/api/calculator', calculatorRoutes);
 app.use('/api/question', questionRoutes);
+app.use('/api/cta', ctaRoutes);
 
 app.use((err, req, res, next) => {
   console.error('Error:', err.stack);
