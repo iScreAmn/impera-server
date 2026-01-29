@@ -116,16 +116,33 @@ export const submitCalculator = async (req, res) => {
       timestamp: emailData.submitted_at
     });
 
-    return res.status(200).json({
+    const telegramPayload =
+      telegramResult.status === 'fulfilled'
+        ? {
+            ok: true,
+            okCount:
+              typeof telegramResult.value?.okCount === 'number'
+                ? telegramResult.value.okCount
+                : null,
+            skipped: Boolean(telegramResult.value?.skipped)
+          }
+        : {
+            ok: false,
+            error:
+              telegramResult.reason?.message ||
+              String(telegramResult.reason ?? 'Unknown error')
+          };
+
+    const payload = {
       success: true,
       message: 'Заявка успешно отправлена!',
       data: {
         timestamp: emailData.submitted_at,
-        telegram: telegramResult.status === 'fulfilled'
-          ? telegramResult.value
-          : { error: telegramResult.reason?.message || String(telegramResult.reason) }
+        telegram: telegramPayload
       }
-    });
+    };
+
+    return res.status(200).json(payload);
   } catch (error) {
     console.error('Calculator submission error:', error);
     return res.status(500).json({
