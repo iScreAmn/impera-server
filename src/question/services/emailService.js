@@ -41,6 +41,10 @@ const generateEmailHTML = (data) => `
         <span>${data.contactMethod}</span>
       </div>
       <div class="field">
+        <span class="label">Контакт для ответа:</span>
+        <span>${data.contactValue || '—'}</span>
+      </div>
+      <div class="field">
         <span class="label">Вопрос:</span>
         <div class="message">${data.question}</div>
       </div>
@@ -59,6 +63,7 @@ const generatePlainText = (data) => `
 ${'='.repeat(36)}
 Имя: ${data.name}
 Способ связи: ${data.contactMethod}
+Контакт для ответа: ${data.contactValue || '—'}
 Вопрос: ${data.question}
 
 Отправлено: ${data.submitted_at}

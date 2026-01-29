@@ -7,9 +7,13 @@ const contactMethodLabels = {
   email: 'Email'
 };
 
+const phoneRegex = /^\+?[\d\s()-]{7,20}$/;
+const normalizePhone = (v) => (v || '').replace(/\D/g, '');
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export const submitQuestion = async (req, res) => {
   try {
-    const { name, contactMethod, question, _company } = req.body;
+    const { name, contactMethod, contactValue, question, _company } = req.body;
 
     if (typeof _company === 'string' && _company.trim()) {
       return res.status(200).json({
@@ -26,10 +30,37 @@ export const submitQuestion = async (req, res) => {
       });
     }
 
-    const methodKey = String(contactMethod).trim();
+    const methodKey = String(contactMethod).trim().toLowerCase();
+    const contactVal = typeof contactValue === 'string' ? contactValue.trim() : '';
+
+    if (!contactVal) {
+      return res.status(400).json({
+        success: false,
+        message: 'Укажите контакт для ответа (телефон или email)'
+      });
+    }
+
+    if (methodKey === 'email') {
+      if (!emailRegex.test(contactVal)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Неверный формат email'
+        });
+      }
+    } else if (methodKey === 'telegram' || methodKey === 'max') {
+      const digits = normalizePhone(contactVal);
+      if (digits.length < 7 || !phoneRegex.test(contactVal)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Укажите корректный номер телефона'
+        });
+      }
+    }
+
     const emailData = {
       name: String(name).trim(),
       contactMethod: contactMethodLabels[methodKey] || methodKey,
+      contactValue: contactVal,
       question: String(question).trim(),
       submitted_at: new Date().toLocaleString('ru-RU', {
         timeZone: 'Europe/Moscow',
@@ -65,6 +96,7 @@ export const submitQuestion = async (req, res) => {
     console.log('Question submission successful:', {
       name: emailData.name,
       contactMethod: emailData.contactMethod,
+      contactValue: emailData.contactValue,
       timestamp: emailData.submitted_at
     });
 
