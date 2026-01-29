@@ -24,15 +24,16 @@ export const submitContact = async (req, res) => {
       });
     }
 
-    if (!name || !phone || !email) {
+    if (!name || !phone) {
       return res.status(400).json({
         success: false,
         message: 'Missing required fields',
-        required: ['name', 'phone', 'email']
+        required: ['name', 'phone']
       });
     }
 
-    if (!emailRegex.test(email)) {
+    const emailVal = typeof email === 'string' ? email.trim() : '';
+    if (emailVal && !emailRegex.test(emailVal)) {
       return res.status(400).json({
         success: false,
         message: 'Invalid email format'
@@ -50,7 +51,7 @@ export const submitContact = async (req, res) => {
     const emailData = {
       name: name.trim(),
       phone: normalizedPhone,
-      email: email.trim(),
+      email: emailVal,
       message: typeof message === 'string' ? message.trim() : '',
       submitted_at: new Date().toLocaleString('ru-RU', {
         timeZone: 'Europe/Moscow',

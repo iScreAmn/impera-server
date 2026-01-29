@@ -42,7 +42,7 @@ const generateEmailHTML = (data) => `
       </div>
       <div class="field">
         <span class="label">Email:</span>
-        <span>${data.email}</span>
+        <span>${data.email || '—'}</span>
       </div>
       <div class="field">
         <span class="label">Сообщение:</span>
@@ -63,7 +63,7 @@ const generatePlainText = (data) => `
 ${'='.repeat(40)}
 Имя: ${data.name}
 Телефон: ${data.phone}
-Email: ${data.email}
+Email: ${data.email || '—'}
 Сообщение: ${data.message || '—'}
 
 Отправлено: ${data.submitted_at}
@@ -91,7 +91,7 @@ const generateUserEmailHTML = (data) => `
       <div class="label">Ваши данные:</div>
       <div>Имя: ${data.name}</div>
       <div>Телефон: ${data.phone}</div>
-      <div>Email: ${data.email}</div>
+      <div>Email: ${data.email || '—'}</div>
       <div class="label">Сообщение:</div>
       <div class="message">${data.message || '—'}</div>
     </div>
@@ -107,7 +107,7 @@ ${'='.repeat(32)}
 Ваши данные:
 Имя: ${data.name}
 Телефон: ${data.phone}
-Email: ${data.email}
+Email: ${data.email || '—'}
 Сообщение: ${data.message || '—'}
 `.trim();
 
