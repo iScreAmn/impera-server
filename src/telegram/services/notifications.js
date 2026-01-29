@@ -70,6 +70,7 @@ export const sendQuestionTelegramNotification = async (data) => {
     ``,
     `<b>Имя:</b> ${escapeHtml(data.name)}`,
     `<b>Способ связи:</b> ${escapeHtml(data.contactMethod)}`,
+    `<b>Контакт для ответа:</b> ${escapeHtml(data.contactValue || '—')}`,
     `<b>Вопрос:</b> ${escapeHtml(data.question)}`,
     ``,
     `<b>Отправлено:</b> ${escapeHtml(data.submitted_at)}`
