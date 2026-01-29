@@ -10,6 +10,13 @@ const normalizePhone = (phone) => {
   if (cleaned.startsWith('00')) {
     return `+${cleaned.slice(2)}`;
   }
+  if (cleaned.startsWith('+')) return cleaned;
+  if (cleaned.length === 11 && cleaned.startsWith('8')) {
+    return `+7${cleaned.slice(1)}`;
+  }
+  if (cleaned.length >= 10 && !cleaned.startsWith('+')) {
+    return `+${cleaned}`;
+  }
   return cleaned;
 };
 
