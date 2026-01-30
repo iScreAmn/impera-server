@@ -91,7 +91,6 @@ const generateUserEmailHTML = (data) => `
       <div class="label">Ваши данные:</div>
       <div>Имя: ${data.name}</div>
       <div>Телефон: ${data.phone}</div>
-      <div>Email: ${data.email || '—'}</div>
       <div class="label">Сообщение:</div>
       <div class="message">${data.message || '—'}</div>
     </div>
