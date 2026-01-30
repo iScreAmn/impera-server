@@ -63,7 +63,6 @@ const generatePlainText = (data) => `
 ${'='.repeat(40)}
 Имя: ${data.name}
 Телефон: ${data.phone}
-Email: ${data.email || '—'}
 Сообщение: ${data.message || '—'}
 
 Отправлено: ${data.submitted_at}
@@ -106,7 +105,6 @@ ${'='.repeat(32)}
 Ваши данные:
 Имя: ${data.name}
 Телефон: ${data.phone}
-Email: ${data.email || '—'}
 Сообщение: ${data.message || '—'}
 `.trim();
 
