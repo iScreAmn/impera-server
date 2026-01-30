@@ -73,23 +73,33 @@ export const submitContact = async (req, res) => {
       userAgent: req.get('user-agent') || 'Unknown'
     };
 
-    const telegramPromise = sendContactTelegramNotification(emailData)
-      .then((result) => {
-        console.log('Contact telegram notification result:', result);
-        return result;
-      })
-      .catch((err) => {
-        console.error(
-          'Contact telegram notification failed:',
-          err?.message || err,
-          err?.details || ''
-        );
-      });
-
-    await Promise.all([
+    const [emailResult, telegramResult] = await Promise.allSettled([
       sendContactAdminEmail(emailData),
-      telegramPromise
+      sendContactTelegramNotification(emailData)
     ]);
+
+    if (telegramResult.status === 'fulfilled') {
+      console.log('Contact telegram notification result:', telegramResult.value);
+    } else {
+      console.error(
+        'Contact telegram notification failed:',
+        telegramResult.reason?.message || telegramResult.reason,
+        telegramResult.reason?.details || ''
+      );
+    }
+
+    if (emailResult.status === 'rejected') {
+      console.error('Contact admin email rejected:', emailResult.reason?.message || emailResult.reason);
+    }
+
+    const deliveryOk = emailResult.status === 'fulfilled' || telegramResult.status === 'fulfilled';
+    if (!deliveryOk) {
+      return res.status(500).json({
+        success: false,
+        message: 'Ошибка при отправке заявки. Пожалуйста, попробуйте позже.',
+        error: process.env.NODE_ENV === 'development' ? 'All delivery channels failed' : undefined
+      });
+    }
 
     console.log('Contact submission successful:', {
       name: emailData.name,

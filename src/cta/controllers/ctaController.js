@@ -61,16 +61,29 @@ export const submitCta = async (req, res) => {
       userAgent: req.get('user-agent') || 'Unknown'
     };
 
-    const telegramPromise = sendCtaTelegramNotification(emailData)
-      .then((r) => { console.log('CTA telegram result:', r); return r; })
-      .catch((err) => {
-        console.error('CTA telegram failed:', err?.message || err);
-      });
-
-    await Promise.all([
+    const [emailResult, telegramResult] = await Promise.allSettled([
       sendCtaAdminEmail(emailData),
-      telegramPromise
+      sendCtaTelegramNotification(emailData)
     ]);
+
+    if (telegramResult.status === 'fulfilled') {
+      console.log('CTA telegram result:', telegramResult.value);
+    } else {
+      console.error('CTA telegram failed:', telegramResult.reason?.message || telegramResult.reason);
+    }
+
+    if (emailResult.status === 'rejected') {
+      console.error('CTA admin email rejected:', emailResult.reason?.message || emailResult.reason);
+    }
+
+    const deliveryOk = emailResult.status === 'fulfilled' || telegramResult.status === 'fulfilled';
+    if (!deliveryOk) {
+      return res.status(500).json({
+        success: false,
+        message: 'Ошибка при отправке. Пожалуйста, попробуйте позже.',
+        error: process.env.NODE_ENV === 'development' ? 'All delivery channels failed' : undefined
+      });
+    }
 
     console.log('CTA submission successful:', { name: emailData.name, phone: emailData.phone, timestamp: emailData.submitted_at });
 

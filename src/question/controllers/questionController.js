@@ -75,23 +75,33 @@ export const submitQuestion = async (req, res) => {
       userAgent: req.get('user-agent') || 'Unknown'
     };
 
-    const telegramPromise = sendQuestionTelegramNotification(emailData)
-      .then((result) => {
-        console.log('Question telegram notification result:', result);
-        return result;
-      })
-      .catch((err) => {
-        console.error(
-          'Question telegram notification failed:',
-          err?.message || err,
-          err?.details || ''
-        );
-      });
-
-    await Promise.all([
+    const [emailResult, telegramResult] = await Promise.allSettled([
       sendQuestionAdminEmail(emailData),
-      telegramPromise
+      sendQuestionTelegramNotification(emailData)
     ]);
+
+    if (telegramResult.status === 'fulfilled') {
+      console.log('Question telegram notification result:', telegramResult.value);
+    } else {
+      console.error(
+        'Question telegram notification failed:',
+        telegramResult.reason?.message || telegramResult.reason,
+        telegramResult.reason?.details || ''
+      );
+    }
+
+    if (emailResult.status === 'rejected') {
+      console.error('Question admin email rejected:', emailResult.reason?.message || emailResult.reason);
+    }
+
+    const deliveryOk = emailResult.status === 'fulfilled' || telegramResult.status === 'fulfilled';
+    if (!deliveryOk) {
+      return res.status(500).json({
+        success: false,
+        message: 'Ошибка при отправке вопроса. Пожалуйста, попробуйте позже.',
+        error: process.env.NODE_ENV === 'development' ? 'All delivery channels failed' : undefined
+      });
+    }
 
     console.log('Question submission successful:', {
       name: emailData.name,
