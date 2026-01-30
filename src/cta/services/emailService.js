@@ -21,7 +21,7 @@ const generateEmailHTML = (data) => `
 </head>
 <body>
   <div class="container">
-    <h1>Заявка из блока CTA (Impera Design)</h1>
+    <h1>Заявка из блока призыва к действию, студии «ИМПЕРА»</h1>
     <div class="field">
       <span class="label">Имя:</span>
       <span>${data.name}</span>

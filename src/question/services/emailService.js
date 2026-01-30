@@ -31,7 +31,7 @@ const generateEmailHTML = (data) => `
   </head>
   <body>
     <div class="container">
-      <h1>Новый вопрос с сайта Impera Design</h1>
+      <h1>Новый вопрос с сайта студии «ИМПЕРА»</h1>
       <div class="field">
         <span class="label">Имя:</span>
         <span>${data.name}</span>

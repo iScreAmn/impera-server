@@ -33,7 +33,7 @@ export const sendCalculatorTelegramNotification = async (data) => {
   });
 
   const html = linesToHtml([
-    `<b>Новая заявка из калькулятора Impera Design</b>`,
+    `<b>Новая заявка из калькулятора студии «ИМПЕРА»</b>`,
     ``,
     `<b>Имя:</b> ${escapeHtml(data.name)}`,
     `<b>Телефон:</b> ${escapeHtml(data.phone)}`,
@@ -51,7 +51,7 @@ export const sendCalculatorTelegramNotification = async (data) => {
 
 export const sendContactTelegramNotification = async (data) => {
   const html = linesToHtml([
-    `<b>Новая заявка с сайта Impera Design</b>`,
+    `<b>Новая заявка с сайта студии «ИМПЕРА»</b>`,
     ``,
     `<b>Имя:</b> ${escapeHtml(data.name)}`,
     `<b>Телефон:</b> ${escapeHtml(data.phone)}`,
@@ -66,7 +66,7 @@ export const sendContactTelegramNotification = async (data) => {
 
 export const sendQuestionTelegramNotification = async (data) => {
   const html = linesToHtml([
-    `<b>Новый вопрос с сайта ИМПЕРА</b>`,
+    `<b>Новый вопрос с сайта студии «ИМПЕРА»</b>`,
     ``,
     `<b>Имя:</b> ${escapeHtml(data.name)}`,
     `<b>Способ связи:</b> ${escapeHtml(data.contactMethod)}`,
@@ -81,7 +81,7 @@ export const sendQuestionTelegramNotification = async (data) => {
 
 export const sendCtaTelegramNotification = async (data) => {
   const html = linesToHtml([
-    `<b>Заявка из блока CTA — Impera Design</b>`,
+    `<b>Заявка из блока призыва к действию, студии «ИМПЕРА»</b>`,
     ``,
     `<b>Имя:</b> ${escapeHtml(data.name)}`,
     `<b>Телефон:</b> ${escapeHtml(data.phone)}`,

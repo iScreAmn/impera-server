@@ -31,7 +31,7 @@ const generateEmailHTML = (data) => `
   </head>
   <body>
     <div class="container">
-      <h1>Новая заявка с сайта Impera Design</h1>
+      <h1>Новая заявка с сайта студии «ИМПЕРА»</h1>
       <div class="field">
         <span class="label">Имя:</span>
         <span>${data.name}</span>
@@ -59,7 +59,7 @@ const generateEmailHTML = (data) => `
 `;
 
 const generatePlainText = (data) => `
-Новая заявка с сайта Impera Design
+Новая заявка с сайта студии «ИМПЕРА»
 ${'='.repeat(40)}
 Имя: ${data.name}
 Телефон: ${data.phone}
