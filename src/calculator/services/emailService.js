@@ -49,6 +49,7 @@ const generateAnswersText = (answers) => {
 const contactMethodLabels = {
   telegram: 'Telegram',
   messenger: 'MAX',
+  phone: 'Телефон',
   email: 'Email'
 };
 
@@ -79,8 +80,8 @@ const generateEmailHTML = (data) => `
           <span>${data.name}</span>
         </div>
         <div class="field">
-          <span class="label">Телефон:</span>
-          <span>${data.phone}</span>
+          <span class="label">Контакт для связи:</span>
+          <span>${data.contactValue}</span>
         </div>
         <div class="field">
           <span class="label">Способ связи:</span>
@@ -109,7 +110,7 @@ const generatePlainText = (data) => `
 Новая заявка из калькулятора Impera Design
 ${'='.repeat(48)}
 Имя: ${data.name}
-Телефон: ${data.phone}
+Контакт для связи: ${data.contactValue}
 Способ связи: ${formatContactMethod(data.contactMethod)}
 Согласие: ${data.consent ? 'Да' : 'Нет'}
 

@@ -4,11 +4,12 @@ import { sendQuestionTelegramNotification } from '../../telegram/services/notifi
 const contactMethodLabels = {
   telegram: 'Telegram',
   max: 'Max',
+  phone: 'Телефон',
   email: 'Email'
 };
 
-const phoneRegex = /^\+?[\d\s()-]{7,20}$/;
-const normalizePhone = (v) => (v || '').replace(/\D/g, '');
+const phoneRegex = /^\+[0-9]{7,15}$/;
+
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export const submitQuestion = async (req, res) => {
@@ -36,11 +37,19 @@ export const submitQuestion = async (req, res) => {
     if (!contactVal) {
       return res.status(400).json({
         success: false,
-        message: 'Укажите контакт для ответа (телефон или email)'
+        message: 'Укажите контакт для связи'
       });
     }
 
-    if (methodKey === 'email') {
+    if (methodKey === 'phone') {
+      const normalized = contactVal.replace(/[^\d+]/g, '');
+      if (!phoneRegex.test(normalized)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Укажите корректный номер телефона'
+        });
+      }
+    } else if (methodKey === 'email') {
       if (!emailRegex.test(contactVal)) {
         return res.status(400).json({
           success: false,
@@ -48,11 +57,11 @@ export const submitQuestion = async (req, res) => {
         });
       }
     } else if (methodKey === 'telegram' || methodKey === 'max') {
-      const digits = normalizePhone(contactVal);
-      if (digits.length < 7 || !phoneRegex.test(contactVal)) {
+      // @username; старые клиенты присылают номер телефона — он тоже проходит
+      if (contactVal.length < 2 || contactVal.length > 100) {
         return res.status(400).json({
           success: false,
-          message: 'Укажите корректный номер телефона'
+          message: 'Укажите корректный контакт для связи'
         });
       }
     }

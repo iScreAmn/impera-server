@@ -2,6 +2,7 @@ import { sendCalculatorAdminEmail, sendCalculatorUserEmail } from '../services/e
 import { sendCalculatorTelegramNotification } from '../../telegram/services/notifications.js';
 
 const phoneRegex = /^\+?[0-9]{7,15}$/;
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const normalizePhone = (phone) => {
   if (!phone) return '';
@@ -27,7 +28,9 @@ export const submitCalculator = async (req, res) => {
     const {
       name,
       phone,
+      email,
       contactMethod,
+      contactValue,
       consent
     } = contact || {};
 
@@ -46,13 +49,17 @@ export const submitCalculator = async (req, res) => {
       });
     }
 
-    if (!name || !phone || !contactMethod) {
-      console.log('Missing fields check:', { name: !!name, phone: !!phone, contactMethod: !!contactMethod });
-      console.log('Actual values:', { name, phone, contactMethod });
+    // contactValue — новый формат (@username или email); phone/email — старые клиенты
+    const rawContact = [contactValue, contactMethod === 'email' ? email : '', phone]
+      .find((v) => typeof v === 'string' && v.trim()) || '';
+    const isLegacyPhone = !contactValue && !(contactMethod === 'email' && email) && Boolean(phone);
+
+    if (!name || !rawContact || !contactMethod) {
+      console.log('Missing fields check:', { name: !!name, contactValue: !!rawContact, contactMethod: !!contactMethod });
       return res.status(400).json({
         success: false,
         message: 'Missing required fields',
-        required: ['name', 'phone', 'contactMethod']
+        required: ['name', 'contactValue', 'contactMethod']
       });
     }
 
@@ -63,18 +70,33 @@ export const submitCalculator = async (req, res) => {
       });
     }
 
-    const normalizedPhone = normalizePhone(phone);
-    if (!phoneRegex.test(normalizedPhone)) {
+    let normalizedContact = rawContact.trim();
+    if (isLegacyPhone || contactMethod === 'phone') {
+      normalizedContact = normalizePhone(rawContact);
+      if (!phoneRegex.test(normalizedContact)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid phone format. Expected 7-15 digits (optionally with +).'
+        });
+      }
+    } else if (contactMethod === 'email') {
+      if (!emailRegex.test(normalizedContact)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Неверный формат email'
+        });
+      }
+    } else if (normalizedContact.length < 2 || normalizedContact.length > 100) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid phone format. Expected 7-15 digits (optionally with +).'
+        message: 'Укажите корректный контакт для связи'
       });
     }
 
     const emailData = {
       answers,
       name: name.trim(),
-      phone: normalizedPhone,
+      contactValue: normalizedContact,
       contactMethod,
       consent: Boolean(consent),
       submitted_at: new Date().toLocaleString('ru-RU', {
@@ -149,7 +171,7 @@ export const submitCalculator = async (req, res) => {
 
     console.log('Calculator submission successful:', {
       name: emailData.name,
-      phone: emailData.phone,
+      contactValue: emailData.contactValue,
       contactMethod: emailData.contactMethod,
       timestamp: emailData.submitted_at
     });

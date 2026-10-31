@@ -20,6 +20,7 @@ const contactMethodLabels = {
   telegram: 'Telegram',
   messenger: 'MAX',
   max: 'Max',
+  phone: 'Телефон',
   email: 'Email'
 };
 
@@ -36,7 +37,7 @@ export const sendCalculatorTelegramNotification = async (data) => {
     `<b>Новая заявка из калькулятора студии «ИМПЕРА»</b>`,
     ``,
     `<b>Имя:</b> ${escapeHtml(data.name)}`,
-    `<b>Телефон:</b> ${escapeHtml(data.phone)}`,
+    `<b>Контакт для связи:</b> ${escapeHtml(data.contactValue)}`,
     `<b>Способ связи:</b> ${escapeHtml(formatContactMethod(data.contactMethod))}`,
     `<b>Согласие:</b> ${data.consent ? 'Да' : 'Нет'}`,
     ``,
